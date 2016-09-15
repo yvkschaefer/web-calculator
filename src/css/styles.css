@@ -1,0 +1,35 @@
+.containerBox {
+    border: 4px solid black;
+    font-family: cursive;
+    width: 35vw;
+    margin: 4vh 0 0 2vw;
+    padding: 1vh 1vw 1vh 1vw;
+    background-color: rgba(245, 154, 253, 0.6);
+    border-radius: 5px;
+}
+
+.screen {
+    border: 0.3px solid gray;
+    padding: 0 0.2em 0 0.2em;
+    height: 6vh;
+    background-color: rgba(245, 244, 244, 0.6);
+    border-radius: 5px;
+}
+
+.numbersAndOperators {
+    display: flex;
+}
+
+button {
+    font-size: 1.4em;
+    text-decoration: none;
+    margin: 0.2em 0.1em 0.1em 0.1em;
+    background-color: rgba(245, 244, 244, 0.6);
+    border: 0.3px solid gray;
+    border-radius: 10px;
+    width: 6vw;
+}
+
+.numbers {
+    margin: 0 0.5em 0 0;
+}
