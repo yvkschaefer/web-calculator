@@ -1,8 +1,13 @@
+h1 {
+    font-family: cursive;
+    margin: 3vh 0 0 2vw;
+}
+
 .containerBox {
     border: 4px solid black;
     font-family: cursive;
     width: 35vw;
-    margin: 4vh 0 0 2vw;
+    margin: 1vh 0 1vh 2vw;
     padding: 1vh 1vw 1vh 1vw;
     background-color: rgba(245, 154, 253, 0.6);
     border-radius: 5px;
@@ -28,6 +33,7 @@ button {
     border: 0.3px solid gray;
     border-radius: 10px;
     width: 6vw;
+    padding: 0.1em;
 }
 
 .numbers {
