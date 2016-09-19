@@ -21497,8 +21497,6 @@
 	    _handleClick: function _handleClick() {
 	        var text = this.props.text,
 	            cb = this.props.onClick;
-	        console.log('this.props.onClick', this.props.onClick); //where I am
-	
 	        if (cb) {
 	            cb.call(null, text);
 	        }
@@ -21544,13 +21542,11 @@
 	        });
 	    },
 	    getInitialState: function getInitialState() {
-	
 	        return {
 	            text: this.props.text
 	        };
 	    },
 	    componentWillMount: function componentWillMount() {
-	
 	        ee.on('calculateNumbers', this._updateField);
 	    },
 	    render: function render() {
@@ -21566,12 +21562,26 @@
 	    displayName: 'NumberButtons',
 	
 	    _number: function _number(num) {
+	        // console.log('_number was called');
 	        if (!store.curInput) {
 	            return store.newInput = num;
 	        }
 	        return store.newInput = '' + store.curInput + num;
 	    },
-	    _decimal: function _decimal() {},
+	    _decimal: function _decimal() {
+	
+	        //have to split the array by (' ') and then if indexOf below is === -1 for each string....
+	
+	        if (store.curInput.indexOf('.') === -1) {
+	            if (!store.curInput) {
+	                return store.newInput = '0.';
+	            } else if (store.curInput) {
+	                return store.newInput = store.curInput.concat('.');
+	            }
+	        } else {
+	            return store.curInput;
+	        }
+	    },
 	    render: function render() {
 	        return React.createElement(
 	            'section',
@@ -21610,9 +21620,40 @@
 	var OperatorButtons = React.createClass({
 	    displayName: 'OperatorButtons',
 	
-	    _eq: function _eq() {},
-	    _equate: function _equate() {},
-	    _clear: function _clear() {},
+	    _parenth: function _parenth() {},
+	    _eq: function _eq(type) {
+	        if (store.curInput) {
+	            return store.newInput = store.curInput + ' ' + type + ' ';
+	        }
+	    },
+	    _equate: function _equate(type) {
+	        if (!store.curInput) {
+	            return '';
+	        } else if (store.curInput.indexOf(' ') === -1) {
+	            return store.curInput;
+	        } else {
+	            var equation = store.curInput.split(' ');
+	
+	            //check for decimals (indexOf?) and then make a decision about parseFloat vs parseInt for each 
+	            //instance in the equation
+	
+	
+	            if (equation[1] === '+') {
+	                return store.newInput = '' + sum(parseInt(equation[0]), parseInt(equation[2]));
+	            } else if (equation[1] === '-') {
+	                return store.newInput = '' + minus(parseInt(equation[0]), parseInt(equation[2]));
+	            } else if (equation[1] === '*') {
+	                return store.newInput = '' + multiply(parseInt(equation[0]), parseInt(equation[2]));
+	            } else if (equation[1] === '/') {
+	                return store.newInput = '' + divide(parseInt(equation[0]), parseInt(equation[2]));
+	            } else {
+	                console.log('uncaught error in this equation...');
+	            }
+	        }
+	    },
+	    _clear: function _clear() {
+	        store.newInput = '';
+	    },
 	    render: function render() {
 	        return React.createElement(
 	            'section',
@@ -21620,8 +21661,8 @@
 	            React.createElement(
 	                'div',
 	                null,
-	                React.createElement(Button, { text: '(', onClick: this._eq }),
-	                React.createElement(Button, { text: ')', onClick: this._eq })
+	                React.createElement(Button, { text: '(', onClick: this._parenth }),
+	                React.createElement(Button, { text: ')', onClick: this._parenth })
 	            ),
 	            React.createElement(
 	                'div',
@@ -21656,6 +21697,22 @@
 	        ee.emit('calculateNumbers', [this.curInput]);
 	    }
 	};
+	
+	function sum(a, b) {
+	    return a + b;
+	}
+	
+	function minus(a, b) {
+	    return a - b;
+	}
+	
+	function multiply(a, b) {
+	    return a * b;
+	}
+	
+	function divide(a, b) {
+	    return a / b;
+	}
 	
 	module.exports = Calculator;
 

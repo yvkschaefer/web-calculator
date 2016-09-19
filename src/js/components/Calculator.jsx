@@ -28,11 +28,8 @@ var Button = React.createClass({
     _handleClick: function() {
         let text = this.props.text,
             cb = this.props.onClick;
-        console.log('this.props.onClick', this.props.onClick); //where I am
-
         if (cb) {
             cb.call(null, text);
-
         }
     },
     render: function() {
@@ -45,15 +42,15 @@ var Button = React.createClass({
 });
 
 var ContentEditable = React.createClass({
-    _handleClick: function(){
+    _handleClick: function() {
         const cb = this.props.clickHandler;
-        
-        if (cb){
+
+        if (cb) {
             cb.call(this);
         }
     },
-    render: function(){
-        return(
+    render: function() {
+        return (
             <div onClick={this._handleClick}>{this.props.text}</div>
         );
     }
@@ -67,13 +64,11 @@ var Screen = React.createClass({
         });
     },
     getInitialState: function() {
-        
         return {
             text: this.props.text
         };
     },
     componentWillMount: function() {
-        
         ee.on('calculateNumbers', this._updateField);
     },
     render: function() {
@@ -90,6 +85,7 @@ var Screen = React.createClass({
 
 var NumberButtons = React.createClass({
     _number: function(num) {
+        // console.log('_number was called');
         if (!store.curInput) {
             return store.newInput = num;
         }
@@ -97,6 +93,19 @@ var NumberButtons = React.createClass({
     },
     _decimal: function() {
 
+        //have to split the array by (' ') and then if indexOf below is === -1 for each string....
+
+        if (store.curInput.indexOf('.') === -1) {
+            if (!store.curInput) {
+                return store.newInput = '0.';
+            }
+            else if (store.curInput) {
+                return store.newInput = store.curInput.concat('.');
+            }
+        }
+        else {
+            return store.curInput;
+        }
     },
     render: function() {
         return (
@@ -126,21 +135,55 @@ var NumberButtons = React.createClass({
 });
 
 var OperatorButtons = React.createClass({
-    _eq: function() {
+    _parenth: function() {
 
     },
-    _equate: function() {
-
+    _eq: function(type) {
+        if (store.curInput) {
+            return store.newInput = `${store.curInput} ${type} `;
+        }
+    },
+    _equate: function(type) {
+        if (!store.curInput) {
+            return '';
+        }
+        else if (store.curInput.indexOf(' ') === -1) {
+            return store.curInput;
+        }
+        else {
+            var equation = store.curInput.split(' ');
+            
+            
+            //check for decimals (indexOf?) and then make a decision about parseFloat vs parseInt for each 
+            //instance in the equation
+            
+            
+            if (equation[1] === '+') {
+                return store.newInput = `${sum(parseInt(equation[0]), parseInt(equation[2]))}`;
+            }
+            else if (equation[1] === '-') {
+                return store.newInput = `${minus(parseInt(equation[0]), parseInt(equation[2]))}`
+            }
+            else if (equation[1] === '*') {
+                return store.newInput = `${multiply(parseInt(equation[0]), parseInt(equation[2]))}`
+            }
+            else if (equation[1] === '/') {
+                return store.newInput = `${divide(parseInt(equation[0]), parseInt(equation[2]))}`
+            }
+            else {
+                console.log('uncaught error in this equation...');
+            }
+        }
     },
     _clear: function() {
-
+        store.newInput = '';
     },
     render: function() {
         return (
             <section>
                 <div>
-                    <Button text="(" onClick={this._eq} />
-                    <Button text=")" onClick={this._eq} />
+                    <Button text="(" onClick={this._parenth} />
+                    <Button text=")" onClick={this._parenth} />
                 </div>
                 <div>
                     <Button text="*" onClick={this._eq} />
@@ -171,5 +214,20 @@ let store = {
     }
 };
 
+function sum(a, b) {
+    return a + b;
+}
+
+function minus(a, b) {
+    return a - b;
+}
+
+function multiply(a, b) {
+    return a * b;
+}
+
+function divide(a, b) {
+    return a / b;
+}
 
 module.exports = Calculator;
