@@ -1,8 +1,8 @@
 var React = require('react');
 const EventEmitter = require('events');
-const ee = new EventEmitter();
 
 const ee = new EventEmitter();
+
 const App = React.createClass({
   render() {
     return (

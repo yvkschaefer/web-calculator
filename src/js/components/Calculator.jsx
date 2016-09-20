@@ -41,22 +41,6 @@ var Button = React.createClass({
     }
 });
 
-var ContentEditable = React.createClass({
-    _handleClick: function() {
-        const cb = this.props.clickHandler;
-
-        if (cb) {
-            cb.call(this);
-        }
-    },
-    render: function() {
-        return (
-            <div onClick={this._handleClick}>{this.props.text}</div>
-        );
-    }
-});
-
-
 var Screen = React.createClass({
     _updateField: function(newStr) {
         return this.setState({
@@ -74,7 +58,7 @@ var Screen = React.createClass({
     render: function() {
         return (
             <section>
-                <ContentEditable text={this.state.text} clickHandler={this.state.onClick} />
+                {this.state.text}
             </section>
         );
     }
@@ -89,6 +73,12 @@ var NumberButtons = React.createClass({
         if (!store.curInput) {
             return store.newInput = num;
         }
+
+
+        //here, I need to differentiate between if an equation has already gone through or not
+
+
+
         return store.newInput = `${store.curInput}${num}`;
     },
     _decimal: function() {
@@ -136,7 +126,11 @@ var NumberButtons = React.createClass({
 
 var OperatorButtons = React.createClass({
     _parenth: function() {
-
+        
+        
+        
+        
+        
     },
     _eq: function(type) {
         if (store.curInput) {
@@ -152,23 +146,22 @@ var OperatorButtons = React.createClass({
         }
         else {
             var equation = store.curInput.split(' ');
-            
-            
-            //check for decimals (indexOf?) and then make a decision about parseFloat vs parseInt for each 
-            //instance in the equation
-            
-            
+
+            var a = (equation[0].indexOf('.') === -1) ? parseInt(equation[0]) : parseFloat(equation[0]);
+            var b = (equation[2].indexOf('.') === -1) ? parseInt(equation[2]) : parseFloat(equation[2]);
+
+
             if (equation[1] === '+') {
-                return store.newInput = `${sum(parseInt(equation[0]), parseInt(equation[2]))}`;
+                return store.newInput = `${sum(a, b)}`;
             }
             else if (equation[1] === '-') {
-                return store.newInput = `${minus(parseInt(equation[0]), parseInt(equation[2]))}`
+                return store.newInput = `${minus(a, b)}`
             }
             else if (equation[1] === '*') {
-                return store.newInput = `${multiply(parseInt(equation[0]), parseInt(equation[2]))}`
+                return store.newInput = `${multiply(a, b)}`
             }
             else if (equation[1] === '/') {
-                return store.newInput = `${divide(parseInt(equation[0]), parseInt(equation[2]))}`
+                return store.newInput = `${divide(a, b)}`
             }
             else {
                 console.log('uncaught error in this equation...');
@@ -202,6 +195,8 @@ var OperatorButtons = React.createClass({
     }
 });
 
+HELLO HELLO I AM HERE
+
 let store = {
     get curInput() {
         return this.input;
@@ -211,6 +206,15 @@ let store = {
             oldInput = this.curInput;
         this.input = curInput;
         ee.emit('calculateNumbers', [this.curInput]);
+    },
+    set result(str) {
+        //to properly deal with the math starting on line 167
+
+
+
+
+
+
     }
 };
 
@@ -228,6 +232,18 @@ function multiply(a, b) {
 
 function divide(a, b) {
     return a / b;
+}
+
+
+function checkParenth (str){
+    
+    var firstParenth = str.indexOf('(')
+    var lastParenth = str.split('').reverse.join('').indexOf(')') 
+    
+    //have the outside parentheses, then check inside.
+    
+    //check parenths are even
+    
 }
 
 module.exports = Calculator;
