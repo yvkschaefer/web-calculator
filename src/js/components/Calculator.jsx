@@ -4,8 +4,6 @@ var EventEmitter = require('events').EventEmitter;
 var ee = new EventEmitter;
 
 
-
-
 var Calculator = React.createClass({
     render: function() {
         return (
@@ -76,6 +74,8 @@ var NumberButtons = React.createClass({
 
 
         //here, I need to differentiate between if an equation has already gone through or not
+        //as it stands now, when the result of an equation goes through, if I don't hit "clr" first,
+        //numbers get concatenated to the result
 
 
 
@@ -125,19 +125,31 @@ var NumberButtons = React.createClass({
 });
 
 var OperatorButtons = React.createClass({
-    _parenth: function() {
+    _parenth: function(type) {
+        
+        //the code below is commented out until I properly sort out checkParenth() and computeParenth()
         
         
-        
-        
-        
+        // return store.newInput = `${store.curInput}${type}`;
     },
     _eq: function(type) {
-        if (store.curInput) {
+        //I don't want _eq to work if the last character of the store.curInput was a parenthesis
+        var lastChar = store.curInput.split('').pop();
+
+        // console.log(lastChar);
+
+        if (lastChar === '(' || lastChar === ')') {
+            return store.curInput = 'error';
+        }
+        else if (store.curInput) {
             return store.newInput = `${store.curInput} ${type} `;
         }
     },
-    _equate: function(type) {
+    _equate: function() {
+        //here is where I would call checkParenth followed by computeParenth
+        //doing those before the other values are calculated
+
+
         if (!store.curInput) {
             return '';
         }
@@ -155,16 +167,16 @@ var OperatorButtons = React.createClass({
                 return store.newInput = `${sum(a, b)}`;
             }
             else if (equation[1] === '-') {
-                return store.newInput = `${minus(a, b)}`
+                return store.newInput = `${minus(a, b)}`;
             }
             else if (equation[1] === '*') {
-                return store.newInput = `${multiply(a, b)}`
+                return store.newInput = `${multiply(a, b)}`;
             }
             else if (equation[1] === '/') {
-                return store.newInput = `${divide(a, b)}`
+                return store.newInput = `${divide(a, b)}`;
             }
             else {
-                console.log('uncaught error in this equation...');
+                console.log('uncaught error in this equation');
             }
         }
     },
@@ -195,26 +207,17 @@ var OperatorButtons = React.createClass({
     }
 });
 
-HELLO HELLO I AM HERE
+
+
 
 let store = {
     get curInput() {
         return this.input;
     },
     set newInput(str) {
-        let curInput = str,
-            oldInput = this.curInput;
+        let curInput = str;
         this.input = curInput;
         ee.emit('calculateNumbers', [this.curInput]);
-    },
-    set result(str) {
-        //to properly deal with the math starting on line 167
-
-
-
-
-
-
     }
 };
 
@@ -234,16 +237,46 @@ function divide(a, b) {
     return a / b;
 }
 
+module.exports = Calculator;
 
-function checkParenth (str){
-    
-    var firstParenth = str.indexOf('(')
-    var lastParenth = str.split('').reverse.join('').indexOf(')') 
-    
+
+
+
+
+
+
+
+
+// --------------------------
+
+//work in progress of parentheses
+
+
+function checkParenth(str) {
+    var firstParenth = str.indexOf('(');
+    var lastParenth = str.length - 1 - str.split('').reverse().join('').indexOf(')');
+
+    console.log('first parenthesis is at ', firstParenth);
+    console.log('last parenthesis ', lastParenth);
+
+    if (firstParenth != -1 && lastParenth != -1) {
+        return true;
+    }
+
+
+    //split str at first and last parentheses positions, then see within the new split middle string which direction 
+    //the next parenthesis faces, if it does. 
+
+
     //have the outside parentheses, then check inside.
-    
-    //check parenths are even
-    
+
+    //check that the number of parentheses are even
+
 }
 
-module.exports = Calculator;
+function computeParenth(str) {
+
+    //this function is called after checkParenth has been called until it returns no more nested parentheses
+    //computes the parentheses in order
+
+}
