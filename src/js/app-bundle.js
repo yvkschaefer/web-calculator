@@ -21543,26 +21543,22 @@
 	    displayName: 'NumberButtons',
 	
 	    _number: function _number(num) {
-	        // console.log('_number was called');
 	        if (!store.curInput) {
 	            return store.newInput = num;
 	        }
-	
-	        //here, I need to differentiate between if an equation has already gone through or not
-	        //as it stands now, when the result of an equation goes through, if I don't hit "clr" first,
-	        //numbers get concatenated to the result
-	
 	
 	        return store.newInput = '' + store.curInput + num;
 	    },
 	    _decimal: function _decimal() {
 	
-	        //have to split the array by (' ') and then if indexOf below is === -1 for each string....
+	        //have to split the array by (' ') and then if indexOf below is === -1 for each string
 	
-	        if (store.curInput.indexOf('.') === -1) {
-	            if (!store.curInput) {
-	                return store.newInput = '0.';
-	            } else if (store.curInput) {
+	
+	        if (!store.curInput) {
+	            return store.newInput = '0.';
+	        } else if (store.curInput) {
+	            var eachNum = store.curInput.split(' ');
+	            if (eachNum.indexOf('.') === -1) {
 	                return store.newInput = store.curInput.concat('.');
 	            }
 	        } else {
@@ -21642,13 +21638,13 @@
 	            var b = equation[2].indexOf('.') === -1 ? parseInt(equation[2]) : parseFloat(equation[2]);
 	
 	            if (equation[1] === '+') {
-	                return store.newInput = '' + sum(a, b);
+	                return store.newInput = '' + sum(a, b).toFixed(2);
 	            } else if (equation[1] === '-') {
-	                return store.newInput = '' + minus(a, b);
+	                return store.newInput = '' + minus(a, b).toFixed(2);
 	            } else if (equation[1] === '*') {
-	                return store.newInput = '' + multiply(a, b);
+	                return store.newInput = '' + multiply(a, b).toFixed(2);
 	            } else if (equation[1] === '/') {
-	                return store.newInput = '' + divide(a, b);
+	                return store.newInput = '' + divide(a, b).toFixed(2);
 	            } else {
 	                console.log('uncaught error in this equation');
 	            }
