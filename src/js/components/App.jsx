@@ -7,7 +7,7 @@ var App = React.createClass({
   render: function() {
     return (
       <main>
-        <h1>Calculatrice</h1>
+        <h1>Calculator</h1>
         <Calculator />
         <hr />
       </main>

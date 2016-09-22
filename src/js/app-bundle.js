@@ -21444,7 +21444,7 @@
 	      React.createElement(
 	        'h1',
 	        null,
-	        'Calculatrice'
+	        'Calculator'
 	      ),
 	      React.createElement(Calculator, null),
 	      React.createElement('hr', null)
@@ -21507,10 +21507,10 @@
 	
 	        return React.createElement(
 	            'button',
-	            { className: this.props.class, onClick: this._handleClick },
+	            { onClick: this._handleClick },
 	            React.createElement(
 	                'span',
-	                { className: 'title' },
+	                null,
 	                this.props.text
 	            )
 	        );
@@ -21525,6 +21525,29 @@
 	        return this.setState({
 	            text: newStr
 	        });
+	    },
+	
+	    _handleKeys: function _handleKeys(e) {
+	        if (e.charCode === 8 || //backspace
+	        48 <= e.charCode <= 57 || //0-9
+	        96 <= e.charCode <= 110) {
+	            //numpad 0-9, multiply, add, subtract, decimal point, divide
+	
+	
+	            if (!store.curInput) {
+	                return String.fromCharCode(e.charCode);
+	            } else {
+	                return store.newInput = '' + store.curInput + String.fromCharCode(e.charCode);
+	
+	                //doesn't automatically space the same way the button inputs do
+	            }
+	        } else if (e.charCode === 13) {
+	            //enter
+	            ee.emit('equals');
+	            console.log('equals was emitted');
+	        } else {
+	            return store.curInput;
+	        }
 	    },
 	    getInitialState: function getInitialState() {
 	
@@ -21541,7 +21564,7 @@
 	        return React.createElement(
 	            'section',
 	            null,
-	            this.state.text
+	            React.createElement('textarea', { className: 'screen', onKeyPress: this._handleKeys, value: this.state.text })
 	        );
 	    }
 	});
@@ -21623,6 +21646,10 @@
 	        } else {
 	            return store.newInput = '' + store.curInput + type;
 	        }
+	    },
+	
+	    componentDidMount: function componentDidMount() {
+	        ee.on('equals', this._equate);
 	    },
 	
 	    _eq: function _eq(type) {
@@ -21759,6 +21786,9 @@
 	
 	    var a = equation[0].indexOf('.') === -1 ? parseInt(equation[0]) : parseFloat(equation[0]);
 	    var b = equation[2].indexOf('.') === -1 ? parseInt(equation[2]) : parseFloat(equation[2]);
+	
+	    //compute needs handlers for equation[3] and higher
+	
 	
 	    if (equation[1] === '+') {
 	        return '' + sum(a, b);

@@ -36,8 +36,8 @@ var Button = React.createClass({
     render: function() {
 
         return (
-            <button className={this.props.class} onClick={this._handleClick}>
-                 <span className="title">{this.props.text}</span>
+            <button onClick={this._handleClick}>
+                 <span>{this.props.text}</span>
             </button>
         );
     }
@@ -45,11 +45,41 @@ var Button = React.createClass({
 
 
 var Screen = React.createClass({
-    
+
     _updateField: function(newStr) {
         return this.setState({
             text: newStr
         });
+    },
+
+    _handleKeys: function(e) {
+        if  (e.charCode === 8 || //backspace
+            48 <= e.charCode <= 57 || //0-9
+            96 <= e.charCode <= 110) { //numpad 0-9, multiply, add, subtract, decimal point, divide
+                
+                
+                
+            if (!store.curInput) {
+                return String.fromCharCode(e.charCode);
+            }
+            else {
+                return store.newInput = `${store.curInput}${String.fromCharCode(e.charCode)}`;
+                
+                //doesn't automatically space the same way the button inputs do
+                
+            }
+        }
+        else if (e.charCode === 13) { //enter
+            ee.emit('equals');
+            console.log('equals was emitted');
+        }
+        else {
+            return store.curInput;
+        }
+
+
+
+
     },
     getInitialState: function() {
 
@@ -65,7 +95,7 @@ var Screen = React.createClass({
 
         return (
             <section>
-                {this.state.text}
+                <textarea className="screen" onKeyPress={this._handleKeys} value={this.state.text} />
             </section>
         );
     }
@@ -80,7 +110,6 @@ var NumberButtons = React.createClass({
         if (!store.curInput) {
             return store.newInput = num;
         }
-
 
         return store.newInput = `${store.curInput}${num}`;
     },
@@ -144,6 +173,10 @@ var OperatorButtons = React.createClass({
         else {
             return store.newInput = `${store.curInput}${type}`;
         }
+    },
+    
+    componentDidMount: function(){
+      ee.on('equals', this._equate);  
     },
 
     _eq: function(type) {
@@ -246,18 +279,16 @@ function computeParenth(equation) {
     var openParenths = equation.filter(filterOpen);
     var closingParenths = equation.filter(filterClosed);
 
-
-
     if (openParenths.length === closingParenths.length) {
         if (openParenths.length === 0 && closingParenths.length === 0) {
             let eq = store.curInput;
             return store.newInput = compute(eq);
-            
+
         }
         else if (openParenths.length > 0 && closingParenths.length > 0) {
             var firstParenth = equation.indexOf('(');
             var lastParenth = equation.length - 1 - equation.reverse().indexOf(')');
-            
+
             equation.reverse();
 
             var innerEquation = equation.splice(firstParenth, (lastParenth + 1));
@@ -265,20 +296,17 @@ function computeParenth(equation) {
             innerEquation.shift();
             innerEquation.pop();
             var eqStr = innerEquation.join('');
-            
+
             var equatedInner = compute(eqStr);
-      
+
             equation.splice(firstParenth, 0, equatedInner);
-            
-            
+
             var toCompute = equation.join('');
             console.log('new equation to compute ', toCompute);
-            
-            
+
+
             return store.newInput = compute(toCompute);
         }
-
-
     }
     else {
         return store.newInput = 'error';
@@ -293,6 +321,8 @@ function compute(str) {
 
     var a = (equation[0].indexOf('.') === -1) ? parseInt(equation[0]) : parseFloat(equation[0]);
     var b = (equation[2].indexOf('.') === -1) ? parseInt(equation[2]) : parseFloat(equation[2]);
+
+    //compute needs handlers for equation[3] and higher
 
 
     if (equation[1] === '+') {
