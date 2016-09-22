@@ -53,6 +53,13 @@ var Screen = React.createClass({
     },
 
     _handleKeys: function(e) {
+        
+        //this whole area is problematic, my first if statement doesn't seem to filter out the 
+        //unwanted keyboard inputs such as letters
+        
+        
+        
+        
         if  (e.charCode === 8 || //backspace
             48 <= e.charCode <= 57 || //0-9
             96 <= e.charCode <= 110) { //numpad 0-9, multiply, add, subtract, decimal point, divide
@@ -176,6 +183,8 @@ var OperatorButtons = React.createClass({
     },
     
     componentDidMount: function(){
+        //this event doesn't get heard :(
+        
       ee.on('equals', this._equate);  
     },
 
@@ -322,7 +331,8 @@ function compute(str) {
     var a = (equation[0].indexOf('.') === -1) ? parseInt(equation[0]) : parseFloat(equation[0]);
     var b = (equation[2].indexOf('.') === -1) ? parseInt(equation[2]) : parseFloat(equation[2]);
 
-    //compute needs handlers for equation[3] and higher
+    //compute still needs handlers for equations that are longer than 3 index spaces, for example if 
+    //my sum function wanted to take three arguments not just 2
 
 
     if (equation[1] === '+') {
