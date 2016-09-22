@@ -20,9 +20,6 @@ Design and implement a calculator in Javascript. It shall have the following pro
 - you are not allowed to use "eval" or new Function etc...
 
 
-*clr button also added
-
-
 Thanks for checking out my repository!
 
 yvkschaefer@gmail.com

@@ -5,6 +5,7 @@ var ee = new EventEmitter;
 
 
 var Calculator = React.createClass({
+
     render: function() {
         return (
             <main>
@@ -22,7 +23,9 @@ var Calculator = React.createClass({
     }
 });
 
+
 var Button = React.createClass({
+
     _handleClick: function() {
         let text = this.props.text,
             cb = this.props.onClick;
@@ -31,6 +34,7 @@ var Button = React.createClass({
         }
     },
     render: function() {
+
         return (
             <button className={this.props.class} onClick={this._handleClick}>
                  <span className="title">{this.props.text}</span>
@@ -39,21 +43,26 @@ var Button = React.createClass({
     }
 });
 
+
 var Screen = React.createClass({
+    
     _updateField: function(newStr) {
         return this.setState({
             text: newStr
         });
     },
     getInitialState: function() {
+
         return {
             text: this.props.text
         };
     },
     componentWillMount: function() {
+
         ee.on('calculateNumbers', this._updateField);
     },
     render: function() {
+
         return (
             <section>
                 {this.state.text}
@@ -66,6 +75,7 @@ var Screen = React.createClass({
 
 
 var NumberButtons = React.createClass({
+
     _number: function(num) {
         if (!store.curInput) {
             return store.newInput = num;
@@ -74,18 +84,15 @@ var NumberButtons = React.createClass({
 
         return store.newInput = `${store.curInput}${num}`;
     },
+
     _decimal: function() {
 
-        //have to split the array by (' ') and then if indexOf below is === -1 for each string
-        
-        
-        
-        if(!store.curInput){
+        if (!store.curInput) {
             return store.newInput = '0.';
         }
-            else if (store.curInput) {
-                var eachNum = store.curInput.split(' ');
-                if (eachNum.indexOf('.') === -1){
+        else if (store.curInput) {
+            var eachNum = store.curInput.split(' ');
+            if (eachNum.indexOf('.') === -1) {
                 return store.newInput = store.curInput.concat('.');
             }
         }
@@ -93,7 +100,9 @@ var NumberButtons = React.createClass({
             return store.curInput;
         }
     },
+
     render: function() {
+
         return (
             <section>
                 <div>
@@ -121,65 +130,55 @@ var NumberButtons = React.createClass({
 });
 
 var OperatorButtons = React.createClass({
+
     _parenth: function(type) {
-        
-        //the code below is commented out until I properly sort out checkParenth() and computeParenth()
-        
-        
-        // return store.newInput = `${store.curInput}${type}`;
-    },
-    _eq: function(type) {
-        //I don't want _eq to work if the last character of the store.curInput was a parenthesis
-        var lastChar = store.curInput.split('').pop();
 
-        // console.log(lastChar);
-
-        if (lastChar === '(' || lastChar === ')') {
-            return store.curInput = 'error';
+        if (!store.curInput) {
+            if (`${type}` === '(') {
+                return store.newInput = `${type}`;
+            }
+            else {
+                return store.newInput = '';
+            }
         }
-        else if (store.curInput) {
+        else {
+            return store.newInput = `${store.curInput}${type}`;
+        }
+    },
+
+    _eq: function(type) {
+
+        if (!store.curInput) {
+            return store.newInput = 'error';
+        }
+
+        else {
             return store.newInput = `${store.curInput} ${type} `;
         }
     },
-    _equate: function() {
-        //here is where I would call checkParenth followed by computeParenth
-        //doing those before the other values are calculated
 
+    _equate: function() {
 
         if (!store.curInput) {
             return '';
         }
         else if (store.curInput.indexOf(' ') === -1) {
-            return store.curInput;
+            return store.newInput = 'error';
         }
         else {
-            var equation = store.curInput.split(' ');
 
-            var a = (equation[0].indexOf('.') === -1) ? parseInt(equation[0]) : parseFloat(equation[0]);
-            var b = (equation[2].indexOf('.') === -1) ? parseInt(equation[2]) : parseFloat(equation[2]);
-
-
-            if (equation[1] === '+') {
-                return store.newInput = `${sum(a, b).toFixed(2)}`;
-            }
-            else if (equation[1] === '-') {
-                return store.newInput = `${minus(a, b).toFixed(2)}`;
-            }
-            else if (equation[1] === '*') {
-                return store.newInput = `${multiply(a, b).toFixed(2)}`;
-            }
-            else if (equation[1] === '/') {
-                return store.newInput = `${divide(a, b).toFixed(2)}`;
-            }
-            else {
-                console.log('uncaught error in this equation');
-            }
+            var eqSplitByChar = store.curInput.split('');
+            computeParenth(eqSplitByChar);
         }
     },
+
     _clear: function() {
+
         store.newInput = '';
     },
+
     render: function() {
+
         return (
             <section>
                 <div>
@@ -207,6 +206,7 @@ var OperatorButtons = React.createClass({
 
 
 let store = {
+
     get curInput() {
         return this.input;
     },
@@ -233,46 +233,83 @@ function divide(a, b) {
     return a / b;
 }
 
-module.exports = Calculator;
 
 
-
-
-
-
-
-
-
-// --------------------------
-
-//work in progress of parentheses
-
-
-function checkParenth(str) {
-    var firstParenth = str.indexOf('(');
-    var lastParenth = str.length - 1 - str.split('').reverse().join('').indexOf(')');
-
-    console.log('first parenthesis is at ', firstParenth);
-    console.log('last parenthesis ', lastParenth);
-
-    if (firstParenth != -1 && lastParenth != -1) {
-        return true;
+function computeParenth(equation) {
+    function filterOpen(a) {
+        return a === '(';
     }
 
+    function filterClosed(a) {
+        return a === ')';
+    }
+    var openParenths = equation.filter(filterOpen);
+    var closingParenths = equation.filter(filterClosed);
 
-    //split str at first and last parentheses positions, then see within the new split middle string which direction 
-    //the next parenthesis faces, if it does. 
 
 
-    //have the outside parentheses, then check inside.
+    if (openParenths.length === closingParenths.length) {
+        if (openParenths.length === 0 && closingParenths.length === 0) {
+            let eq = store.curInput;
+            return store.newInput = compute(eq);
+            
+        }
+        else if (openParenths.length > 0 && closingParenths.length > 0) {
+            var firstParenth = equation.indexOf('(');
+            var lastParenth = equation.length - 1 - equation.reverse().indexOf(')');
+            
+            equation.reverse();
 
-    //check that the number of parentheses are even
+            var innerEquation = equation.splice(firstParenth, (lastParenth + 1));
+
+            innerEquation.shift();
+            innerEquation.pop();
+            var eqStr = innerEquation.join('');
+            
+            var equatedInner = compute(eqStr);
+      
+            equation.splice(firstParenth, 0, equatedInner);
+            
+            
+            var toCompute = equation.join('');
+            console.log('new equation to compute ', toCompute);
+            
+            
+            return store.newInput = compute(toCompute);
+        }
+
+
+    }
+    else {
+        return store.newInput = 'error';
+    }
 
 }
 
-function computeParenth(str) {
 
-    //this function is called after checkParenth has been called until it returns no more nested parentheses
-    //computes the parentheses in order
 
+function compute(str) {
+    let equation = str.split(' ');
+
+    var a = (equation[0].indexOf('.') === -1) ? parseInt(equation[0]) : parseFloat(equation[0]);
+    var b = (equation[2].indexOf('.') === -1) ? parseInt(equation[2]) : parseFloat(equation[2]);
+
+
+    if (equation[1] === '+') {
+        return `${sum(a, b)}`;
+    }
+    else if (equation[1] === '-') {
+        return `${minus(a, b)}`;
+    }
+    else if (equation[1] === '*') {
+        return `${multiply(a, b)}`;
+    }
+    else if (equation[1] === '/') {
+        return `${divide(a, b)}`;
+    }
+    else {
+        return store.newInput = 'error';
+    }
 }
+
+module.exports = Calculator;

@@ -21468,6 +21468,7 @@
 	var Calculator = React.createClass({
 	    displayName: 'Calculator',
 	
+	
 	    render: function render() {
 	        return React.createElement(
 	            'main',
@@ -21494,6 +21495,7 @@
 	var Button = React.createClass({
 	    displayName: 'Button',
 	
+	
 	    _handleClick: function _handleClick() {
 	        var text = this.props.text,
 	            cb = this.props.onClick;
@@ -21502,6 +21504,7 @@
 	        }
 	    },
 	    render: function render() {
+	
 	        return React.createElement(
 	            'button',
 	            { className: this.props.class, onClick: this._handleClick },
@@ -21517,20 +21520,24 @@
 	var Screen = React.createClass({
 	    displayName: 'Screen',
 	
+	
 	    _updateField: function _updateField(newStr) {
 	        return this.setState({
 	            text: newStr
 	        });
 	    },
 	    getInitialState: function getInitialState() {
+	
 	        return {
 	            text: this.props.text
 	        };
 	    },
 	    componentWillMount: function componentWillMount() {
+	
 	        ee.on('calculateNumbers', this._updateField);
 	    },
 	    render: function render() {
+	
 	        return React.createElement(
 	            'section',
 	            null,
@@ -21542,6 +21549,7 @@
 	var NumberButtons = React.createClass({
 	    displayName: 'NumberButtons',
 	
+	
 	    _number: function _number(num) {
 	        if (!store.curInput) {
 	            return store.newInput = num;
@@ -21549,10 +21557,8 @@
 	
 	        return store.newInput = '' + store.curInput + num;
 	    },
+	
 	    _decimal: function _decimal() {
-	
-	        //have to split the array by (' ') and then if indexOf below is === -1 for each string
-	
 	
 	        if (!store.curInput) {
 	            return store.newInput = '0.';
@@ -21565,7 +21571,9 @@
 	            return store.curInput;
 	        }
 	    },
+	
 	    render: function render() {
+	
 	        return React.createElement(
 	            'section',
 	            null,
@@ -21603,57 +21611,49 @@
 	var OperatorButtons = React.createClass({
 	    displayName: 'OperatorButtons',
 	
+	
 	    _parenth: function _parenth(type) {
 	
-	        //the code below is commented out until I properly sort out checkParenth() and computeParenth()
-	
-	
-	        // return store.newInput = `${store.curInput}${type}`;
+	        if (!store.curInput) {
+	            if ('' + type === '(') {
+	                return store.newInput = '' + type;
+	            } else {
+	                return store.newInput = '';
+	            }
+	        } else {
+	            return store.newInput = '' + store.curInput + type;
+	        }
 	    },
+	
 	    _eq: function _eq(type) {
-	        //I don't want _eq to work if the last character of the store.curInput was a parenthesis
-	        var lastChar = store.curInput.split('').pop();
 	
-	        // console.log(lastChar);
-	
-	        if (lastChar === '(' || lastChar === ')') {
-	            return store.curInput = 'error';
-	        } else if (store.curInput) {
+	        if (!store.curInput) {
+	            return store.newInput = 'error';
+	        } else {
 	            return store.newInput = store.curInput + ' ' + type + ' ';
 	        }
 	    },
-	    _equate: function _equate() {
-	        //here is where I would call checkParenth followed by computeParenth
-	        //doing those before the other values are calculated
 	
+	    _equate: function _equate() {
 	
 	        if (!store.curInput) {
 	            return '';
 	        } else if (store.curInput.indexOf(' ') === -1) {
-	            return store.curInput;
+	            return store.newInput = 'error';
 	        } else {
-	            var equation = store.curInput.split(' ');
 	
-	            var a = equation[0].indexOf('.') === -1 ? parseInt(equation[0]) : parseFloat(equation[0]);
-	            var b = equation[2].indexOf('.') === -1 ? parseInt(equation[2]) : parseFloat(equation[2]);
-	
-	            if (equation[1] === '+') {
-	                return store.newInput = '' + sum(a, b).toFixed(2);
-	            } else if (equation[1] === '-') {
-	                return store.newInput = '' + minus(a, b).toFixed(2);
-	            } else if (equation[1] === '*') {
-	                return store.newInput = '' + multiply(a, b).toFixed(2);
-	            } else if (equation[1] === '/') {
-	                return store.newInput = '' + divide(a, b).toFixed(2);
-	            } else {
-	                console.log('uncaught error in this equation');
-	            }
+	            var eqSplitByChar = store.curInput.split('');
+	            computeParenth(eqSplitByChar);
 	        }
 	    },
+	
 	    _clear: function _clear() {
+	
 	        store.newInput = '';
 	    },
+	
 	    render: function render() {
+	
 	        return React.createElement(
 	            'section',
 	            null,
@@ -21686,6 +21686,7 @@
 	});
 	
 	var store = {
+	
 	    get curInput() {
 	        return this.input;
 	    },
@@ -21712,39 +21713,67 @@
 	    return a / b;
 	}
 	
-	module.exports = Calculator;
-	
-	// --------------------------
-	
-	//work in progress of parentheses
-	
-	
-	function checkParenth(str) {
-	    var firstParenth = str.indexOf('(');
-	    var lastParenth = str.length - 1 - str.split('').reverse().join('').indexOf(')');
-	
-	    console.log('first parenthesis is at ', firstParenth);
-	    console.log('last parenthesis ', lastParenth);
-	
-	    if (firstParenth != -1 && lastParenth != -1) {
-	        return true;
+	function computeParenth(equation) {
+	    function filterOpen(a) {
+	        return a === '(';
 	    }
 	
-	    //split str at first and last parentheses positions, then see within the new split middle string which direction 
-	    //the next parenthesis faces, if it does. 
+	    function filterClosed(a) {
+	        return a === ')';
+	    }
+	    var openParenths = equation.filter(filterOpen);
+	    var closingParenths = equation.filter(filterClosed);
 	
+	    if (openParenths.length === closingParenths.length) {
+	        if (openParenths.length === 0 && closingParenths.length === 0) {
+	            var eq = store.curInput;
+	            return store.newInput = compute(eq);
+	        } else if (openParenths.length > 0 && closingParenths.length > 0) {
+	            var firstParenth = equation.indexOf('(');
+	            var lastParenth = equation.length - 1 - equation.reverse().indexOf(')');
 	
-	    //have the outside parentheses, then check inside.
+	            equation.reverse();
 	
-	    //check that the number of parentheses are even
+	            var innerEquation = equation.splice(firstParenth, lastParenth + 1);
+	
+	            innerEquation.shift();
+	            innerEquation.pop();
+	            var eqStr = innerEquation.join('');
+	
+	            var equatedInner = compute(eqStr);
+	
+	            equation.splice(firstParenth, 0, equatedInner);
+	
+	            var toCompute = equation.join('');
+	            console.log('new equation to compute ', toCompute);
+	
+	            return store.newInput = compute(toCompute);
+	        }
+	    } else {
+	        return store.newInput = 'error';
+	    }
 	}
 	
-	function computeParenth(str) {
+	function compute(str) {
+	    var equation = str.split(' ');
 	
-	    //this function is called after checkParenth has been called until it returns no more nested parentheses
-	    //computes the parentheses in order
+	    var a = equation[0].indexOf('.') === -1 ? parseInt(equation[0]) : parseFloat(equation[0]);
+	    var b = equation[2].indexOf('.') === -1 ? parseInt(equation[2]) : parseFloat(equation[2]);
 	
+	    if (equation[1] === '+') {
+	        return '' + sum(a, b);
+	    } else if (equation[1] === '-') {
+	        return '' + minus(a, b);
+	    } else if (equation[1] === '*') {
+	        return '' + multiply(a, b);
+	    } else if (equation[1] === '/') {
+	        return '' + divide(a, b);
+	    } else {
+	        return store.newInput = 'error';
+	    }
 	}
+	
+	module.exports = Calculator;
 
 /***/ },
 /* 174 */
